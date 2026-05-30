@@ -1,4 +1,4 @@
-# zouwx-ai-code-mother-frontend
+# yu-ai-code-mother-frontend
 
 This template should help get you started developing with Vue 3 in Vite.
 
