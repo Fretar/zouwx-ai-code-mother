@@ -2,7 +2,7 @@ package com.zouwx.zouwxaicodemother.service;
 
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
-import com.zouwx.zouwxaicodemother.model.dto.UserQueryRequest;
+import com.zouwx.zouwxaicodemother.model.dto.user.UserQueryRequest;
 import com.zouwx.zouwxaicodemother.model.entity.User;
 import com.zouwx.zouwxaicodemother.model.vo.LoginUserVO;
 import com.zouwx.zouwxaicodemother.model.vo.UserVO;

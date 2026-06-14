@@ -1,4 +1,4 @@
-package com.zouwx.zouwxaicodemother.model.dto;
+package com.zouwx.zouwxaicodemother.model.dto.user;
 
 import lombok.Data;
 

@@ -10,7 +10,7 @@ import com.zouwx.zouwxaicodemother.constant.UserConstant;
 import com.zouwx.zouwxaicodemother.exception.BusinessException;
 import com.zouwx.zouwxaicodemother.exception.ErrorCode;
 import com.zouwx.zouwxaicodemother.exception.ThrowUtils;
-import com.zouwx.zouwxaicodemother.model.dto.*;
+import com.zouwx.zouwxaicodemother.model.dto.user.*;
 import com.zouwx.zouwxaicodemother.model.vo.LoginUserVO;
 import com.zouwx.zouwxaicodemother.model.vo.UserVO;
 import jakarta.annotation.Resource;
