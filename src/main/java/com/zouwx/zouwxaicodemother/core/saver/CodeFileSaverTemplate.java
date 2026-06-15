@@ -1,8 +1,8 @@
 package com.zouwx.zouwxaicodemother.core.saver;
 
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
+import com.zouwx.zouwxaicodemother.constant.AppConstant;
 import com.zouwx.zouwxaicodemother.exception.BusinessException;
 import com.zouwx.zouwxaicodemother.exception.ErrorCode;
 import com.zouwx.zouwxaicodemother.model.enums.CodeGenTypeEnum;
@@ -18,12 +18,12 @@ import java.nio.charset.StandardCharsets;
 public abstract class CodeFileSaverTemplate<T> {
 
     // 文件保存根目录
-    protected static final String FILE_SAVE_ROOT_DIR = System.getProperty("user.dir") + "/tmp/code_output";
+    protected static final String FILE_SAVE_ROOT_DIR = AppConstant.CODE_OUTPUT_ROOT_DIR;
 
     /**
      * 模板方法：保存代码的标准流程
      *
-     * @param appId 应用 ID
+     * @param appId  应用 ID
      * @param result 代码结果对象
      * @return 保存的目录
      */
