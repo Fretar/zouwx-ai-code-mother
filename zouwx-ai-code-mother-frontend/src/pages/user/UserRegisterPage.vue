@@ -4,7 +4,7 @@
     <div class="desc">不写一行代码，生成完整应用</div>
     <a-form :model="formState" name="basic" autocomplete="off" @finish="handleSubmit">
       <a-form-item name="userAccount" :rules="[{ required: true, message: '请输入账号' }]">
-        <a-input v-model:value="formState.userAccount" placeholder="请输入账号" />
+        <a-input v-model:value="formState.userAccount" placeholder="请输入账号"/>
       </a-form-item>
       <a-form-item
         name="userPassword"
@@ -13,7 +13,7 @@
           { min: 8, message: '密码不能小于 8 位' },
         ]"
       >
-        <a-input-password v-model:value="formState.userPassword" placeholder="请输入密码" />
+        <a-input-password v-model:value="formState.userPassword" placeholder="请输入密码"/>
       </a-form-item>
       <a-form-item
         name="checkPassword"
@@ -23,7 +23,7 @@
           { validator: validateCheckPassword },
         ]"
       >
-        <a-input-password v-model:value="formState.checkPassword" placeholder="请确认密码" />
+        <a-input-password v-model:value="formState.checkPassword" placeholder="请确认密码"/>
       </a-form-item>
       <div class="tips">
         已有账号？
@@ -37,10 +37,10 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
-import { userRegister } from '@/api/userController.ts'
-import { message } from 'ant-design-vue'
-import { reactive } from 'vue'
+import {useRouter} from 'vue-router'
+import {userRegister} from '@/api/userController.ts'
+import {message} from 'ant-design-vue'
+import {reactive} from 'vue'
 
 const router = useRouter()
 
