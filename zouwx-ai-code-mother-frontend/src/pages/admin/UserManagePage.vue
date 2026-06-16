@@ -3,16 +3,16 @@
     <!-- 搜索表单 -->
     <a-form layout="inline" :model="searchParams" @finish="doSearch">
       <a-form-item label="账号">
-        <a-input v-model:value="searchParams.userAccount" placeholder="输入账号"/>
+        <a-input v-model:value="searchParams.userAccount" placeholder="输入账号" />
       </a-form-item>
       <a-form-item label="用户名">
-        <a-input v-model:value="searchParams.userName" placeholder="输入用户名"/>
+        <a-input v-model:value="searchParams.userName" placeholder="输入用户名" />
       </a-form-item>
       <a-form-item>
         <a-button type="primary" html-type="submit">搜索</a-button>
       </a-form-item>
     </a-form>
-    <a-divider/>
+    <a-divider />
     <!-- 表格 -->
     <a-table
       :columns="columns"
@@ -22,7 +22,7 @@
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.dataIndex === 'userAvatar'">
-          <a-image :src="record.userAvatar" :width="120"/>
+          <a-image :src="record.userAvatar" :width="120" />
         </template>
         <template v-else-if="column.dataIndex === 'userRole'">
           <div v-if="record.userRole === 'admin'">
@@ -43,9 +43,9 @@
   </div>
 </template>
 <script lang="ts" setup>
-import {computed, onMounted, reactive, ref} from 'vue'
-import {deleteUser, listUserVoByPage} from '@/api/userController.ts'
-import {message} from 'ant-design-vue'
+import { computed, onMounted, reactive, ref } from 'vue'
+import { deleteUser, listUserVoByPage } from '@/api/userController.ts'
+import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
 
 const columns = [
@@ -118,12 +118,13 @@ const pagination = computed(() => {
 })
 
 // 表格分页变化时的操作
-const doTableChange = (page: any) => {
+const doTableChange = (page: { current: number; pageSize: number }) => {
   searchParams.pageNum = page.current
   searchParams.pageSize = page.pageSize
   fetchData()
 }
 
+// 搜索数据
 const doSearch = () => {
   // 重置页码
   searchParams.pageNum = 1
@@ -135,7 +136,7 @@ const doDelete = async (id: string) => {
   if (!id) {
     return
   }
-  const res = await deleteUser({id})
+  const res = await deleteUser({ id })
   if (res.data.code === 0) {
     message.success('删除成功')
     // 刷新数据
@@ -151,7 +152,10 @@ onMounted(() => {
 })
 </script>
 
-<style>
+<style scoped>
 #userManagePage {
+  padding: 24px;
+  background: white;
+  margin-top: 16px;
 }
 </style>

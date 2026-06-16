@@ -1,143 +1,88 @@
-<script setup lang="ts">
-import {ref} from 'vue'
-import {useRouter} from 'vue-router'
-import {message} from 'ant-design-vue'
-import {UserOutlined, LockOutlined} from '@ant-design/icons-vue'
-import {userLogin} from '@/api/userController'
-import {useLoginUserStore} from '@/stores/loginUser'
-import './UserLoginPage.css'
+<template>
+  <div id="userLoginPage">
+    <h2 class="title">灵搭 AI 应用生成 - 用户登录</h2>
+    <div class="desc">不写一行代码，生成完整应用</div>
+    <a-form :model="formState" name="basic" autocomplete="off" @finish="handleSubmit">
+      <a-form-item name="userAccount" :rules="[{ required: true, message: '请输入账号' }]">
+        <a-input v-model:value="formState.userAccount" placeholder="请输入账号" />
+      </a-form-item>
+      <a-form-item
+        name="userPassword"
+        :rules="[
+          { required: true, message: '请输入密码' },
+          { min: 8, message: '密码长度不能小于 8 位' },
+        ]"
+      >
+        <a-input-password v-model:value="formState.userPassword" placeholder="请输入密码" />
+      </a-form-item>
+      <div class="tips">
+        没有账号
+        <RouterLink to="/user/register">去注册</RouterLink>
+      </div>
+      <a-form-item>
+        <a-button type="primary" html-type="submit" style="width: 100%">登录</a-button>
+      </a-form-item>
+    </a-form>
+  </div>
+</template>
+<script lang="ts" setup>
+import { reactive } from 'vue'
+import { userLogin } from '@/api/userController.ts'
+import { useLoginUserStore } from '@/stores/loginUser.ts'
+import { useRouter } from 'vue-router'
+import { message } from 'ant-design-vue'
+
+const formState = reactive<API.UserLoginRequest>({
+  userAccount: '',
+  userPassword: '',
+})
 
 const router = useRouter()
 const loginUserStore = useLoginUserStore()
 
-const formState = ref({
-  userAccount: '',
-  userPassword: ''
-})
-
-const loading = ref(false)
-
-const handleLogin = async () => {
-  if (!formState.value.userAccount || !formState.value.userPassword) {
-    message.error('请输入账号和密码')
-    return
-  }
-
-  if (formState.value.userAccount.length < 4) {
-    message.error('账号长度不能少于4个字符')
-    return
-  }
-
-  if (formState.value.userPassword.length < 8) {
-    message.error('密码长度不能少于8个字符')
-    return
-  }
-
-  loading.value = true
-  try {
-    const res = await userLogin({
-      userAccount: formState.value.userAccount,
-      userPassword: formState.value.userPassword
+/**
+ * 提交表单
+ * @param values
+ */
+const handleSubmit = async (values: any) => {
+  const res = await userLogin(values)
+  // 登录成功，把登录态保存到全局状态中
+  if (res.data.code === 0 && res.data.data) {
+    await loginUserStore.fetchLoginUser()
+    message.success('登录成功')
+    router.push({
+      path: '/',
+      replace: true,
     })
-
-    if (res.data.code === 0 && res.data.data) {
-      loginUserStore.setLoginUser(res.data.data)
-      message.success('登录成功')
-
-      const redirect = router.currentRoute.value.query.redirect as string
-      router.push(redirect || '/')
-    } else {
-      message.error(res.data.message || '登录失败')
-    }
-  } catch (error) {
-    console.error('登录错误:', error)
-    message.error('登录失败，请检查网络连接')
-  } finally {
-    loading.value = false
+  } else {
+    message.error('登录失败，' + res.data.message)
   }
-}
-
-const goToRegister = () => {
-  router.push('/user/register')
 }
 </script>
 
-<template>
-  <div class="login-container">
-    <!-- 背景装饰 -->
-    <div class="login-background">
-      <div class="bg-circle circle-1"></div>
-      <div class="bg-circle circle-2"></div>
-      <div class="bg-circle circle-3"></div>
-    </div>
+<style scoped>
+#userLoginPage {
+  background: white;
+  max-width: 720px;
+  padding: 24px;
+  margin: 24px auto;
+}
 
-    <!-- 登录卡片 -->
-    <div class="login-card">
-      <!-- 标题区域 -->
-      <div class="card-header">
-        <div class="brand-logo-wrapper">
-          <img src="@/assets/logo.png" alt="Logo" class="card-brand-logo"/>
-          <h1 class="card-title">灵搭 AI 应用生成</h1>
-        </div>
-        <p class="card-subtitle">一句话生成完整应用</p>
-      </div>
+.title {
+  text-align: center;
+  margin-bottom: 16px;
+}
 
-      <!-- 登录表单 -->
-      <a-form
-        :model="formState"
-        class="login-form"
-        @finish="handleLogin"
-      >
-        <!-- 账号输入框 -->
-        <a-form-item name="userAccount">
-          <a-input
-            v-model:value="formState.userAccount"
-            placeholder="请输入账号"
-            size="large"
-            :bordered="false"
-            class="custom-input"
-          >
-            <template #prefix>
-              <UserOutlined class="input-icon"/>
-            </template>
-          </a-input>
-        </a-form-item>
+.desc {
+  text-align: center;
+  color: #bbb;
+  margin-bottom: 16px;
+}
 
-        <!-- 密码输入框 -->
-        <a-form-item name="userPassword">
-          <a-input-password
-            v-model:value="formState.userPassword"
-            placeholder="请输入密码"
-            size="large"
-            :bordered="false"
-            class="custom-input"
-          >
-            <template #prefix>
-              <LockOutlined class="input-icon"/>
-            </template>
-          </a-input-password>
-        </a-form-item>
-
-        <!-- 登录按钮 -->
-        <a-form-item>
-          <a-button
-            type="primary"
-            html-type="submit"
-            size="large"
-            block
-            :loading="loading"
-            class="login-button"
-          >
-            {{ loading ? '登录中...' : '登 录' }}
-          </a-button>
-        </a-form-item>
-
-        <!-- 注册链接 -->
-        <div class="login-footer">
-          <span>还没有账号？</span>
-          <a @click="goToRegister" class="register-link">立即注册</a>
-        </div>
-      </a-form>
-    </div>
-  </div>
-</template>
+.tips {
+  text-align: right;
+  color: #bbb;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+</style>

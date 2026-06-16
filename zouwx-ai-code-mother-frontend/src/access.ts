@@ -1,5 +1,5 @@
-import {useLoginUserStore} from '@/stores/loginUser'
-import {message} from 'ant-design-vue'
+import { useLoginUserStore } from '@/stores/loginUser'
+import { message } from 'ant-design-vue'
 import router from '@/router'
 
 // 是否为首次获取登录用户
@@ -18,17 +18,6 @@ router.beforeEach(async (to, from, next) => {
     firstFetchLoginUser = false
   }
   const toUrl = to.fullPath
-
-  // 需要登录才能访问的页面
-  if (to.matched.some((record) => record.meta.requiresAuth)) {
-    if (!loginUser || !loginUser.id) {
-      message.error('请先登录')
-      next(`/user/login?redirect=${to.fullPath}`)
-      return
-    }
-  }
-
-  // 管理员权限检查
   if (toUrl.startsWith('/admin')) {
     if (!loginUser || loginUser.userRole !== 'admin') {
       message.error('没有权限')

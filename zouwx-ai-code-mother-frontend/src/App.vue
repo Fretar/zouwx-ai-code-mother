@@ -1,25 +1,29 @@
 <script setup lang="ts">
-import {computed} from 'vue'
-import {useRoute} from 'vue-router'
 import BasicLayout from '@/layouts/BasicLayout.vue'
-import {useLoginUserStore} from '@/stores/loginUser.ts'
-
-const route = useRoute()
-const loginUserStore = useLoginUserStore()
-loginUserStore.fetchLoginUser()
-
-// 判断是否需要使用布局（登录、注册页面不需要布局）
-const needLayout = computed(() => {
-  return !route.path.startsWith('/user/')
-})
 </script>
 
 <template>
-  <!-- 需要布局的页面 -->
-  <BasicLayout v-if="needLayout"/>
-
-  <!-- 不需要布局的页面（直接渲染当前路由组件） -->
-  <router-view v-else/>
+  <BasicLayout />
 </template>
 
-<style></style>
+<style>
+/* 全局样式优化 */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
+    'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+html {
+  overflow-x: hidden;
+}
+</style>

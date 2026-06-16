@@ -1,17 +1,15 @@
-
 <script setup lang="ts">
 // 无需额外的响应式数据
 </script>
 
 <style scoped>
 .footer {
-  background: #efefef;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
   text-align: center;
   padding: 20px;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  margin-top: 40px;
+  border-top: 1px solid rgba(102, 126, 234, 0.1);
 }
 
 .copyright {
