@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * 用户 控制层。
  *
- * @author <a href="https://github.com/Fretar">zouwx</a>
+ * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
  */
 @RestController
 @RequestMapping("/user")
@@ -38,13 +38,13 @@ public class UserController {
     private UserService userService;
 
     /**
-     * 用户注册。
+     * 用户注册
      *
      * @param userRegisterRequest 用户注册请求
-     * @return 用户ID
+     * @return 注册结果
      */
     @PostMapping("/register")
-    public BaseResponse<Long> register(@RequestBody UserRegisterRequest userRegisterRequest) {
+    public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
         ThrowUtils.throwIf(userRegisterRequest == null, ErrorCode.PARAMS_ERROR);
         String userAccount = userRegisterRequest.getUserAccount();
         String userPassword = userRegisterRequest.getUserPassword();
@@ -54,11 +54,11 @@ public class UserController {
     }
 
     /**
-     * 用户登录。
+     * 用户登录
      *
      * @param userLoginRequest 用户登录请求
-     * @param request          请求
-     * @return 登录用户信息
+     * @param request          请求对象
+     * @return 脱敏后的用户登录信息
      */
     @PostMapping("/login")
     public BaseResponse<LoginUserVO> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
@@ -69,12 +69,6 @@ public class UserController {
         return ResultUtils.success(loginUserVO);
     }
 
-    /**
-     * 获取当前登录用户。
-     *
-     * @param request 请求
-     * @return 登录用户信息
-     */
     @GetMapping("/get/login")
     public BaseResponse<LoginUserVO> getLoginUser(HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
@@ -82,10 +76,10 @@ public class UserController {
     }
 
     /**
-     * 用户注销。
+     * 用户注销
      *
-     * @param request 请求
-     * @return 是否注销成功
+     * @param request 请求对象
+     * @return
      */
     @PostMapping("/logout")
     public BaseResponse<Boolean> userLogout(HttpServletRequest request) {
