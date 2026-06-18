@@ -5,12 +5,14 @@ import lombok.Getter;
 
 /**
  * 代码生成类型枚举
+ * @author Tretar
  */
 @Getter
 public enum CodeGenTypeEnum {
 
     HTML("原生 HTML 模式", "html"),
-    MULTI_FILE("原生多文件模式", "multi_file");
+    MULTI_FILE("原生多文件模式", "multi_file"),
+    VUE_PROJECT("Vue 工程模式", "vue_project");
 
     private final String text;
     private final String value;
