@@ -1,6 +1,5 @@
 package com.zouwx.zouwxaicodemother.ai.tools;
 
-import cn.hutool.core.io.FileUtil;
 import cn.hutool.json.JSONObject;
 import com.zouwx.zouwxaicodemother.constant.AppConstant;
 import dev.langchain4j.agent.tool.P;
@@ -13,46 +12,34 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 
 /**
- * 文件写入工具
- * 支持 AI 通过工具调用的方式写入文件
+ * 文件读取工具
+ * 支持 AI 通过工具调用的方式读取文件内容
  */
 @Slf4j
 @Component
-public class FileWriteTool extends BaseTool {
+public class FileReadTool extends BaseTool {
 
-    @Tool("写入文件到指定路径")
-    public String writeFile(
+    @Tool("读取指定路径的文件内容")
+    public String readFile(
             @P("文件的相对路径")
             String relativeFilePath,
-            @P("要写入文件的内容")
-            String content,
             @ToolMemoryId Long appId
     ) {
         try {
             Path path = Paths.get(relativeFilePath);
             if (!path.isAbsolute()) {
-                // 相对路径处理，创建基于 appId 的项目目录
                 String projectDirName = "vue_project_" + appId;
                 Path projectRoot = Paths.get(AppConstant.CODE_OUTPUT_ROOT_DIR, projectDirName);
                 path = projectRoot.resolve(relativeFilePath);
             }
-            // 创建父目录（如果不存在）
-            Path parentDir = path.getParent();
-            if (parentDir != null) {
-                Files.createDirectories(parentDir);
+            if (!Files.exists(path) || !Files.isRegularFile(path)) {
+                return "错误：文件不存在或不是文件 - " + relativeFilePath;
             }
-            // 写入文件内容
-            Files.write(path, content.getBytes(),
-                    StandardOpenOption.CREATE,
-                    StandardOpenOption.TRUNCATE_EXISTING);
-            log.info("成功写入文件: {}", path.toAbsolutePath());
-            // 注意要返回相对路径，不能让 AI 把文件绝对路径返回给用户
-            return "文件写入成功: " + relativeFilePath;
+            return Files.readString(path);
         } catch (IOException e) {
-            String errorMessage = "文件写入失败: " + relativeFilePath + ", 错误: " + e.getMessage();
+            String errorMessage = "读取文件失败: " + relativeFilePath + ", 错误: " + e.getMessage();
             log.error(errorMessage, e);
             return errorMessage;
         }
@@ -65,7 +52,7 @@ public class FileWriteTool extends BaseTool {
      */
     @Override
     public String getToolName() {
-        return "writeFile";
+        return "readFile";
     }
 
     /**
@@ -75,7 +62,7 @@ public class FileWriteTool extends BaseTool {
      */
     @Override
     public String getDisplayName() {
-        return "写入文件";
+        return "读取文件";
     }
 
     /**
@@ -87,13 +74,6 @@ public class FileWriteTool extends BaseTool {
     @Override
     public String generateToolExecutedResult(JSONObject arguments) {
         String relativeFilePath = arguments.getStr("relativeFilePath");
-        String suffix = FileUtil.getSuffix(relativeFilePath);
-        String content = arguments.getStr("content");
-        return String.format("""
-                [工具调用] %s %s
-                ```%s
-                %s
-                ```
-                """, getDisplayName(), relativeFilePath, suffix, content);
+        return String.format("[工具调用] %s %s", getDisplayName(), relativeFilePath);
     }
 }

@@ -1,6 +1,5 @@
 package com.zouwx.zouwxaicodemother.ai.tools;
 
-import cn.hutool.core.io.FileUtil;
 import cn.hutool.json.JSONObject;
 import com.zouwx.zouwxaicodemother.constant.AppConstant;
 import dev.langchain4j.agent.tool.P;
@@ -16,43 +15,46 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
 /**
- * 文件写入工具
- * 支持 AI 通过工具调用的方式写入文件
+ * 文件修改工具
+ * 支持 AI 通过工具调用的方式修改文件内容
  */
 @Slf4j
 @Component
-public class FileWriteTool extends BaseTool {
+public class FileModifyTool extends BaseTool {
 
-    @Tool("写入文件到指定路径")
-    public String writeFile(
+    @Tool("修改文件内容，用新内容替换指定的旧内容")
+    public String modifyFile(
             @P("文件的相对路径")
             String relativeFilePath,
-            @P("要写入文件的内容")
-            String content,
+            @P("要替换的旧内容")
+            String oldContent,
+            @P("替换后的新内容")
+            String newContent,
             @ToolMemoryId Long appId
     ) {
         try {
             Path path = Paths.get(relativeFilePath);
             if (!path.isAbsolute()) {
-                // 相对路径处理，创建基于 appId 的项目目录
                 String projectDirName = "vue_project_" + appId;
                 Path projectRoot = Paths.get(AppConstant.CODE_OUTPUT_ROOT_DIR, projectDirName);
                 path = projectRoot.resolve(relativeFilePath);
             }
-            // 创建父目录（如果不存在）
-            Path parentDir = path.getParent();
-            if (parentDir != null) {
-                Files.createDirectories(parentDir);
+            if (!Files.exists(path) || !Files.isRegularFile(path)) {
+                return "错误：文件不存在或不是文件 - " + relativeFilePath;
             }
-            // 写入文件内容
-            Files.write(path, content.getBytes(),
-                    StandardOpenOption.CREATE,
-                    StandardOpenOption.TRUNCATE_EXISTING);
-            log.info("成功写入文件: {}", path.toAbsolutePath());
-            // 注意要返回相对路径，不能让 AI 把文件绝对路径返回给用户
-            return "文件写入成功: " + relativeFilePath;
+            String originalContent = Files.readString(path);
+            if (!originalContent.contains(oldContent)) {
+                return "警告：文件中未找到要替换的内容，文件未修改 - " + relativeFilePath;
+            }
+            String modifiedContent = originalContent.replace(oldContent, newContent);
+            if (originalContent.equals(modifiedContent)) {
+                return "信息：替换后文件内容未发生变化 - " + relativeFilePath;
+            }
+            Files.writeString(path, modifiedContent, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            log.info("成功修改文件: {}", path.toAbsolutePath());
+            return "文件修改成功: " + relativeFilePath;
         } catch (IOException e) {
-            String errorMessage = "文件写入失败: " + relativeFilePath + ", 错误: " + e.getMessage();
+            String errorMessage = "修改文件失败: " + relativeFilePath + ", 错误: " + e.getMessage();
             log.error(errorMessage, e);
             return errorMessage;
         }
@@ -65,7 +67,7 @@ public class FileWriteTool extends BaseTool {
      */
     @Override
     public String getToolName() {
-        return "writeFile";
+        return "modifyFile";
     }
 
     /**
@@ -75,7 +77,7 @@ public class FileWriteTool extends BaseTool {
      */
     @Override
     public String getDisplayName() {
-        return "写入文件";
+        return "修改文件";
     }
 
     /**
@@ -87,13 +89,21 @@ public class FileWriteTool extends BaseTool {
     @Override
     public String generateToolExecutedResult(JSONObject arguments) {
         String relativeFilePath = arguments.getStr("relativeFilePath");
-        String suffix = FileUtil.getSuffix(relativeFilePath);
-        String content = arguments.getStr("content");
+        String oldContent = arguments.getStr("oldContent");
+        String newContent = arguments.getStr("newContent");
+        // 显示对比内容
         return String.format("""
                 [工具调用] %s %s
-                ```%s
+                                
+                替换前：
+                ```
                 %s
                 ```
-                """, getDisplayName(), relativeFilePath, suffix, content);
+                                
+                替换后：
+                ```
+                %s
+                ```
+                """, getDisplayName(), relativeFilePath, oldContent, newContent);
     }
 }
