@@ -5,11 +5,18 @@
       <div class="app-basic-info">
         <div class="info-item">
           <span class="info-label">创建者：</span>
-          <UserInfo :user="app?.user" size="small" />
+          <UserInfo :user="app?.user" size="small"/>
         </div>
         <div class="info-item">
           <span class="info-label">创建时间：</span>
           <span>{{ formatTime(app?.createTime) }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">生成类型：</span>
+          <a-tag v-if="app?.codeGenType" color="blue">
+            {{ formatCodeGenType(app.codeGenType) }}
+          </a-tag>
+          <span v-else>未知类型</span>
         </div>
       </div>
 
@@ -18,7 +25,7 @@
         <a-space>
           <a-button type="primary" @click="handleEdit">
             <template #icon>
-              <EditOutlined />
+              <EditOutlined/>
             </template>
             修改
           </a-button>
@@ -30,7 +37,7 @@
           >
             <a-button danger>
               <template #icon>
-                <DeleteOutlined />
+                <DeleteOutlined/>
               </template>
               删除
             </a-button>
@@ -42,10 +49,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons-vue'
+import {computed} from 'vue'
+import {EditOutlined, DeleteOutlined} from '@ant-design/icons-vue'
 import UserInfo from './UserInfo.vue'
-import { formatTime } from '@/utils/time'
+import {formatTime} from '@/utils/time'
+import {formatCodeGenType} from "../utils/codeGenTypes.ts";
 
 interface Props {
   open: boolean
@@ -55,7 +63,9 @@ interface Props {
 
 interface Emits {
   (e: 'update:open', value: boolean): void
+
   (e: 'edit'): void
+
   (e: 'delete'): void
 }
 
