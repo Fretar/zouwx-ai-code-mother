@@ -1,13 +1,13 @@
 <template>
   <div class="app-card" :class="{ 'app-card--featured': featured }">
     <div class="app-preview">
-      <img v-if="app.cover" :src="app.cover" :alt="app.appName" />
+      <img v-if="app.cover" :src="app.cover" :alt="app.appName"/>
       <div v-else class="app-placeholder">
         <span>🤖</span>
       </div>
       <div class="app-overlay">
         <a-space>
-          <a-button type="primary" @click="handleViewChat">查看对话</a-button>
+          <a-button v-if="isOwner" type="primary" @click="handleViewChat">查看对话</a-button>
           <a-button v-if="app.deployKey" type="default" @click="handleViewWork">查看作品</a-button>
         </a-space>
       </div>
@@ -29,6 +29,9 @@
 </template>
 
 <script setup lang="ts">
+import {computed} from 'vue'
+import {useLoginUserStore} from '@/stores/loginUser'
+
 interface Props {
   app: API.AppVO
   featured?: boolean
@@ -36,6 +39,7 @@ interface Props {
 
 interface Emits {
   (e: 'view-chat', appId: string | number | undefined): void
+
   (e: 'view-work', app: API.AppVO): void
 }
 
@@ -44,6 +48,12 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<Emits>()
+
+const loginUserStore = useLoginUserStore()
+
+const isOwner = computed(() => {
+  return props.app.userId === loginUserStore.loginUser.id
+})
 
 const handleViewChat = () => {
   emit('view-chat', props.app.id)
@@ -54,6 +64,7 @@ const handleViewWork = () => {
 }
 </script>
 
+
 <style scoped>
 .app-card {
   background: rgba(255, 255, 255, 0.95);
@@ -62,9 +73,8 @@ const handleViewWork = () => {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  transition:
-    transform 0.3s,
-    box-shadow 0.3s;
+  transition: transform 0.3s,
+  box-shadow 0.3s;
   cursor: pointer;
 }
 

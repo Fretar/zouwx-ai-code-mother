@@ -22,5 +22,9 @@ public interface UserConstant {
      */
     String ADMIN_ROLE = "admin";
 
+    /**
+     * 默认头像地址（COS 存储桶中的默认头像 URL）
+     */
+    String DEFAULT_USER_AVATAR = "https://lingdaai-1445242189.cos.ap-guangzhou.myqcloud.com/avatars/defaultAvatar.png";
     // endregion
 }

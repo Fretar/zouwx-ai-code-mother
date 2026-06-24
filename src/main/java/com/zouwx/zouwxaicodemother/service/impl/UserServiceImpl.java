@@ -5,6 +5,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
+import com.zouwx.zouwxaicodemother.constant.UserConstant;
 import com.zouwx.zouwxaicodemother.exception.BusinessException;
 import com.zouwx.zouwxaicodemother.exception.ErrorCode;
 import com.zouwx.zouwxaicodemother.model.dto.user.UserQueryRequest;
@@ -73,6 +74,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setUserPassword(encryptPassword);
         user.setUserName(NicknameGenerator.generate());
         user.setUserRole(UserRoleEnum.USER.getValue());
+        user.setUserAvatar(UserConstant.DEFAULT_USER_AVATAR);
         boolean saveResult = this.save(user);
         if (!saveResult) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "注册失败，数据库错误");
