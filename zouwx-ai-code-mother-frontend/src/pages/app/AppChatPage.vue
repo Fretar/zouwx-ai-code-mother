@@ -42,12 +42,6 @@
       <div class="chat-section">
         <!-- 消息区域 -->
         <div class="messages-container" ref="messagesContainer">
-          <!-- 加载更多按钮 -->
-          <div v-if="hasMoreHistory" class="load-more-container">
-            <a-button type="link" @click="loadMoreHistory" :loading="loadingHistory" size="small">
-              加载更多历史消息
-            </a-button>
-          </div>
           <div v-for="(message, index) in messages" :key="index" class="message-item">
             <div v-if="message.type === 'user'" class="user-message">
               <div class="message-content">{{ message.content }}</div>
@@ -67,6 +61,12 @@
                 </div>
               </div>
             </div>
+          </div>
+          <!-- 加载更多按钮（放在最后，column-reverse 后显示在顶部） -->
+          <div v-if="hasMoreHistory" class="load-more-container">
+            <a-button type="link" @click="loadMoreHistory" :loading="loadingHistory" size="small">
+              加载更多历史消息
+            </a-button>
           </div>
         </div>
 
@@ -321,19 +321,18 @@ const loadChatHistory = async (isLoadMore = false) => {
     if (res.data.code === 0 && res.data.data) {
       const chatHistories = res.data.data.records || []
       if (chatHistories.length > 0) {
-        // 将对话历史转换为消息格式，并按时间正序排列（老消息在前）
+        // 后端返回按时间降序（最新在前），column-reverse 后最新消息自然显示在底部，无需 reverse
         const historyMessages: Message[] = chatHistories
           .map((chat) => ({
             type: (chat.messageType === 'user' ? 'user' : 'ai') as 'user' | 'ai',
             content: chat.message || '',
             createTime: chat.createTime,
           }))
-          .reverse() // 反转数组，让老消息在前
         if (isLoadMore) {
-          // 加载更多时，将历史消息添加到开头
-          messages.value.unshift(...historyMessages)
+          // 加载更早的消息，追加到数组尾部（column-reverse 后显示在顶部）
+          messages.value.push(...historyMessages)
         } else {
-          // 初始加载，直接设置消息列表
+          // 初始加载，直接设置消息列表（最新在前）
           messages.value = historyMessages
         }
         // 更新游标
@@ -403,22 +402,19 @@ const fetchAppInfo = async () => {
 
 // 发送初始消息
 const sendInitialMessage = async (prompt: string) => {
-  // 添加用户消息
-  messages.value.push({
+  // 添加用户消息（unshift 插入头部，column-reverse 后显示在底部）
+  messages.value.unshift({
     type: 'user',
     content: prompt,
   })
 
-  // 添加AI消息占位符
-  const aiMessageIndex = messages.value.length
-  messages.value.push({
+  // 添加AI消息占位符（插入头部，紧跟在用户消息上方）
+  messages.value.unshift({
     type: 'ai',
     content: '',
     loading: true,
   })
-
-  await nextTick()
-  scrollToBottom()
+  const aiMessageIndex = 0
 
   // 开始生成
   isGenerating.value = true
@@ -445,8 +441,8 @@ const sendMessage = async () => {
     message += elementContext
   }
   userInput.value = ''
-  // 添加用户消息（包含元素信息）
-  messages.value.push({
+  // 添加用户消息（unshift 插入头部，column-reverse 后显示在底部）
+  messages.value.unshift({
     type: 'user',
     content: message,
   })
@@ -459,16 +455,13 @@ const sendMessage = async () => {
     }
   }
 
-  // 添加AI消息占位符
-  const aiMessageIndex = messages.value.length
-  messages.value.push({
+  // 添加AI消息占位符（插入头部，紧跟在用户消息上方）
+  messages.value.unshift({
     type: 'ai',
     content: '',
     loading: true,
   })
-
-  await nextTick()
-  scrollToBottom()
+  const aiMessageIndex = 0
 
   // 开始生成
   isGenerating.value = true
@@ -601,10 +594,10 @@ const updatePreview = () => {
   }
 }
 
-// 滚动到底部
+// 滚动到底部（column-reverse 模式下 scrollTop=0 即为底部）
 const scrollToBottom = () => {
   if (messagesContainer.value) {
-    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+    messagesContainer.value.scrollTop = 0
   }
 }
 
@@ -832,7 +825,8 @@ onUnmounted(() => {
   flex: 0.9;
   padding: 16px;
   overflow-y: auto;
-  scroll-behavior: smooth;
+  display: flex;
+  flex-direction: column-reverse;
 }
 
 .message-item {
